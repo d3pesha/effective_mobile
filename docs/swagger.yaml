@@ -1,0 +1,260 @@
+basePath: /
+definitions:
+  response.Error:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+    type: object
+  usecase.SongCreateInput:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
+  usecase.SongCreateOutput:
+    properties:
+      group:
+        type: string
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
+  usecase.SongFindAllOutput:
+    properties:
+      group:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
+  usecase.SongFindTextVersesOutput:
+    properties:
+      group:
+        type: string
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      verses:
+        items:
+          type: string
+        type: array
+    type: object
+  usecase.SongUpdateInput:
+    properties:
+      text:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Music info
+  version: "1.0"
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый музыкальный трек в базе данных.
+      parameters:
+      - description: Данные о песне
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.SongCreateInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/usecase.SongCreateOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Создание нового трека
+      tags:
+      - songs
+  /{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет музыкальный трек по ID.
+      parameters:
+      - description: ID трека
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Удаление трека
+      tags:
+      - songs
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет информацию о музыкальном треке по ID.
+      parameters:
+      - description: ID трека
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.SongUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Обновление данных трека
+      tags:
+      - songs
+  /info:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех песен с возможностью пагинации и фильтрации
+        по группе и названию.
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Количество записей на странице
+        in: query
+        name: limit
+        type: integer
+      - description: Фильтр по группе
+        in: query
+        name: group
+        type: string
+      - description: Фильтр по названию
+        in: query
+        name: song
+        type: string
+      - description: 'Сортировка (формат: поле:направление, например: release_date:asc,song:desc).
+          Поля: release_date, song, text'
+        in: query
+        name: orderBy
+        type: string
+      - description: Фильтр по тексту
+        in: query
+        name: text
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список песен
+          schema:
+            items:
+              $ref: '#/definitions/usecase.SongFindAllOutput'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Получение списка песен
+      tags:
+      - songs
+  /info/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает текст песни по ID.
+      parameters:
+      - description: ID песни
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Количество записей на странице
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Текст песни
+          schema:
+            $ref: '#/definitions/usecase.SongFindTextVersesOutput'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Получение текста песни по ID
+      tags:
+      - songs
+swagger: "2.0"
